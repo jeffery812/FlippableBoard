@@ -1,5 +1,5 @@
 //
-// Copyright © 2022 Kindred Group. All rights reserved.
+// Copyright © 2022 Zhihui Tang. All rights reserved.
 //
 
 import SwiftUI

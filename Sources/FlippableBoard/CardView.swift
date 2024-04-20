@@ -1,5 +1,5 @@
 //
-// Copyright © 2022 Kindred Group. All rights reserved.
+// Copyright © 2022 Zhihui Tang. All rights reserved.
 //
 
 import SwiftUI
@@ -8,24 +8,42 @@ public struct CardView: View {
     @State private var isFlipped = false
     @State private var backDegree = 0.0
     @State private var frontDegree = -90.0
+    @State private var degree = -90.0
     
-    let width: CGFloat = 100
-    let height: CGFloat = 160
+    let durationAndDelay: CGFloat = 0.5
+    let text: String
     
-    let durationAndDelay: CGFloat = 2.3
-
-    public init() { }
+    public init(text: String) {
+        self.text = text
+    }
     public var body: some View {
-        VStack {
-            ZStack {
-                CardBack(width: width, height: height, degree: $backDegree)
-                CardFront(width: width, height: height, degree: $frontDegree)
+        VStack(spacing: 0) {
+            CardHalfView(type: .top) {
+                content
             }
-            Slider(value: $frontDegree)
+            CardHalfView(type: .bottom) {
+                content
+            }
         }
-        .onTapGesture {
-            flipCard()
+        .onChange(of: text) { _ in
+            print("text changed: \(text)")
         }
+        .overlay {
+            Color.white
+                .frame(height: 4)
+        }
+    }
+    
+    private var content: some View {
+        Text(text)
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .font(.system(size: 100).monospacedDigit())
+            .foregroundStyle(Color.white)
+            .background {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+            }
     }
     
     private func flipCard() {
@@ -53,7 +71,7 @@ struct CardFront: View {
     let width: CGFloat
     let height: CGFloat
     @Binding var degree: Double
-  
+    
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
@@ -98,5 +116,5 @@ struct CardBack: View {
 }
 
 #Preview {
-    CardView()
+    CardView(text: "10:55:28")
 }
