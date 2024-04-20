@@ -8,16 +8,21 @@ public struct CardView: View {
     @State var start = false
     @State var end = false
     
-    private let animationDuration: CGFloat = 0.5
+    private let animationDuration: CGFloat
     private let value: String
     private let backgroundColor: Color
+    private let textColor: Color
+    
     @State private var currentText: String = ""
     @State private var newText: String = ""
     
-    public init(value: String, backgroundColor: Color = .black) {
+    public init(value: String,textColor: Color? = nil, backgroundColor: Color? = nil, animationDuration: CGFloat? = nil) {
         self.value = value
-        self.backgroundColor = backgroundColor
+        self.textColor = textColor ?? Configuration.textColor
+        self.animationDuration = animationDuration ?? Configuration.animationDuration
+        self.backgroundColor = backgroundColor ?? Configuration.backgroundColor
     }
+
     public var body: some View {
         VStack(spacing: 0) {
             topHalf
@@ -78,11 +83,10 @@ public struct CardView: View {
             .minimumScaleFactor(0.5)
             .frame(maxWidth: .infinity, alignment: .center)
             .font(.system(size: 100).monospacedDigit())
-            //.foregroundStyle(Color.white)
-            .foregroundStyle(Configuration.textColor)
+            .foregroundStyle(textColor)
             .background {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Configuration.backgroundColor)
+                    .fill(backgroundColor)
             }
     }
     

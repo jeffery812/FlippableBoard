@@ -12,4 +12,6 @@ struct Configuration {
     static var backgroundColor: Color {
         Color("backgroundColor", bundle: .module)
     }
+    
+    static var animationDuration: CGFloat { 0.4 }
 }

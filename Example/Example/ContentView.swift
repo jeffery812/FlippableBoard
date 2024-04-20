@@ -20,7 +20,8 @@ struct ContentView: View {
                         randomLetter = String(letters.randomElement() ?? "A")
                     }
                 }
-            CardView(value: randomLetter)
+            FlippableBoardView(value: currentTime)
+            CardView(value: randomLetter, textColor: .red)
                 .frame(width: 100)
                 .onTapGesture {
                     randomLetter = String(letters.randomElement() ?? "A")
