@@ -6,6 +6,7 @@ import SwiftUI
 
 struct CardHalfView<Content: View>: View {
     let content: Content
+
     let type: Type
     enum `Type` {
         case top
@@ -34,6 +35,15 @@ struct CardHalfView<Content: View>: View {
             -height / 2
         }
         
+    }
+    
+    private var rotationAnchor: UnitPoint {
+        switch type {
+        case .top:
+            .bottom
+        case .bottom:
+            .top
+        }
     }
 }
 

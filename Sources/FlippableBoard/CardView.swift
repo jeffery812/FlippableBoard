@@ -5,28 +5,32 @@
 import SwiftUI
 
 public struct CardView: View {
-    @State private var isFlipped = false
-    @State private var backDegree = 0.0
-    @State private var frontDegree = -90.0
-    @State private var degree = -90.0
+    @State var start = false
+    @State var end = false
     
-    let durationAndDelay: CGFloat = 0.5
-    let text: String
+    private let animationDuration: CGFloat = 0.5
+    private let value: String
+    private let backgroundColor: Color
+    @State private var currentText: String = ""
+    @State private var newText: String = ""
     
-    public init(text: String) {
-        self.text = text
+    public init(value: String, backgroundColor: Color = .black) {
+        self.value = value
+        self.backgroundColor = backgroundColor
     }
     public var body: some View {
         VStack(spacing: 0) {
-            CardHalfView(type: .top) {
-                content
-            }
-            CardHalfView(type: .bottom) {
-                content
-            }
+            topHalf
+            bottomHalf
         }
-        .onChange(of: text) { _ in
-            print("text changed: \(text)")
+        .onAppear {
+            currentText = value
+            newText = value
+        }
+        .onChange(of: value) { newValue in
+            currentText = newText
+            newText = newValue
+            flipCard()
         }
         .overlay {
             Color.white
@@ -34,87 +38,79 @@ public struct CardView: View {
         }
     }
     
-    private var content: some View {
-        Text(text)
+    private var topHalf: some View {
+        ZStack {
+            CardHalfView(type: .top) {
+                makeContent(value: newText)
+            }
+            CardHalfView(type: .top) {
+                makeContent(value: currentText)
+            }
+            .rotation3DEffect(
+                Angle(degrees: start ? 90 : 0),
+                axis: (x: -1.0, y: 0.0, z: 0.0),
+                anchor: .bottom,
+                perspective: 0.5
+            )
+        }
+    }
+    
+    private var bottomHalf: some View {
+        ZStack {
+            CardHalfView(type: .bottom) {
+                makeContent(value: currentText)
+            }
+            CardHalfView(type: .bottom) {
+                makeContent(value: newText)
+            }
+            .rotation3DEffect(
+                Angle(degrees: end ? 0 : 90),
+                axis: (x: 1.0, y: 0.0, z: 0.0),
+                anchor: .top,
+                perspective: 0.5
+            )
+        }
+    }
+    
+    private func makeContent(value: String) -> some View {
+        Text(value)
             .lineLimit(1)
             .minimumScaleFactor(0.5)
             .frame(maxWidth: .infinity, alignment: .center)
             .font(.system(size: 100).monospacedDigit())
-            .foregroundStyle(Color.white)
+            //.foregroundStyle(Color.white)
+            .foregroundStyle(Configuration.textColor)
             .background {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Configuration.backgroundColor)
             }
     }
     
     private func flipCard() {
-        isFlipped.toggle()
+        // Top half
+        let now: DispatchTime = .now()
+        withAnimation(.linear(duration: animationDuration / 2)) {
+            start.toggle()
+        }
+        DispatchQueue.main.asyncAfter(deadline: now + animationDuration) {
+            start = false
+            currentText = newText
+        }
         
-        if isFlipped {
-            withAnimation(.linear(duration: durationAndDelay)) {
-                backDegree = 90
-            }
-            withAnimation(.linear(duration: durationAndDelay).delay(durationAndDelay)) {
-                frontDegree = 0
-            }
-        } else {
-            withAnimation(.linear(duration: durationAndDelay)) {
-                frontDegree = -90
-            }
-            withAnimation(.linear(duration: durationAndDelay).delay(durationAndDelay)) {
-                backDegree = 0
+        // Bottom half
+        DispatchQueue.main.asyncAfter(deadline: now + animationDuration / 2) {
+            withAnimation(.linear(duration: animationDuration / 2)) {
+                end = true
             }
         }
-    }
-}
 
-struct CardFront: View {
-    let width: CGFloat
-    let height: CGFloat
-    @Binding var degree: Double
-    
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.white)
-                .frame(width: width, height: height)
-                .shadow(color: .gray, radius: 2, x: 0, y: 0)
-            
-            Image(systemName: "suit.club.fill")
-                .resizable()
-                .frame(width: 80, height: 80)
-                .foregroundStyle(Color.red)
+        DispatchQueue.main.asyncAfter(deadline: now + animationDuration) {
+            end = false
         }
-        .rotation3DEffect(
-            Angle(degrees: degree),
-            axis: (x: 0.0, y: 1.0, z: 0.0)
-        )
-    }
-}
-struct CardBack: View {
-    let width: CGFloat
-    let height: CGFloat
-    @Binding var degree: Double
-    
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(.blue.opacity(0.7), lineWidth: 3)
-                .frame(width: width, height: height)
-            
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.blue.opacity(0.2))
-                .frame(width: width, height: height)
-                .shadow(color: .gray, radius: 2, x: 0, y: 0)
-            Text("Back")
-                .foregroundStyle(Color.white)
-        }
-        .rotation3DEffect(
-            Angle(degrees: degree),
-            axis: (x: 0.0, y: 1.0, z: 0.0)
-        )
     }
 }
 
 #Preview {
-    CardView(text: "10:55:28")
+    CardView(value: "10:55:28")
 }
+
