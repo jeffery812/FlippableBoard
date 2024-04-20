@@ -12,15 +12,19 @@ public struct CardView: View {
     private let value: String
     private let backgroundColor: Color
     private let textColor: Color
+    private let roundRadius: CGFloat
+    private let roundCorners: [Corner]
     
     @State private var currentText: String = ""
     @State private var newText: String = ""
-    
-    public init(value: String,textColor: Color? = nil, backgroundColor: Color? = nil, animationDuration: CGFloat? = nil) {
+
+    public init(value: String,textColor: Color? = nil, backgroundColor: Color? = nil, animationDuration: CGFloat? = nil, roundCorners: [Corner] = [], roundRadius: CGFloat = 0) {
         self.value = value
         self.textColor = textColor ?? Configuration.textColor
         self.animationDuration = animationDuration ?? Configuration.animationDuration
         self.backgroundColor = backgroundColor ?? Configuration.backgroundColor
+        self.roundCorners = roundCorners
+        self.roundRadius = roundRadius
     }
 
     public var body: some View {
@@ -39,7 +43,7 @@ public struct CardView: View {
         }
         .overlay {
             Color.white
-                .frame(height: 4)
+                .frame(height: 2)
         }
     }
     
@@ -85,7 +89,13 @@ public struct CardView: View {
             .font(.system(size: 100).monospacedDigit())
             .foregroundStyle(textColor)
             .background {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                UnevenRoundedRectangle(
+                    cornerRadii: RectangleCornerRadii(
+                        topLeading: roundCorners.contains(.topLeading) ? roundRadius : 0,
+                        bottomLeading: roundCorners.contains(.bottomLeading) ? roundRadius : 0,
+                        bottomTrailing: roundCorners.contains(.bottomTrailing) ? roundRadius : 0,
+                        topTrailing: roundCorners.contains(.topTrailing) ? roundRadius : 0),
+                    style: .continuous)
                     .fill(backgroundColor)
             }
     }
