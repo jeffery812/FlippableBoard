@@ -4,7 +4,7 @@
 
 import SwiftUI
 
-public struct CardView: View {
+public struct FlippableCardView: View {
     @State var start = false
     @State var end = false
     
@@ -56,7 +56,7 @@ public struct CardView: View {
                 makeContent(value: currentText)
             }
             .rotation3DEffect(
-                Angle(degrees: start ? 90 : 0),
+                Angle(degrees: start ? 90.01 : 0),
                 axis: (x: -1.0, y: 0.0, z: 0.0),
                 anchor: .bottom,
                 perspective: 0.5
@@ -73,7 +73,7 @@ public struct CardView: View {
                 makeContent(value: newText)
             }
             .rotation3DEffect(
-                Angle(degrees: end ? 0 : 90),
+                Angle(degrees: end ? 0 : 90.01),
                 axis: (x: 1.0, y: 0.0, z: 0.0),
                 anchor: .top,
                 perspective: 0.5
@@ -125,6 +125,6 @@ public struct CardView: View {
 }
 
 #Preview {
-    CardView(value: "10:55:28")
+    FlippableCardView(value: "10:55:28")
 }
 

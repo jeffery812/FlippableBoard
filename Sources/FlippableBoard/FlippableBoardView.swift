@@ -19,7 +19,7 @@ public struct FlippableBoardView: View {
                     Spacer()
                         .frame(width: 2)
                 } else {
-                    CardView(value: letters[index], roundCorners: getRoundedCorners(index: index), roundRadius: 10)
+                    FlippableCardView(value: letters[index], roundCorners: getRoundedCorners(index: index), roundRadius: 10)
                 }
             }
         }

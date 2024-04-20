@@ -13,7 +13,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            CardView(value: currentTime)
+            FlippableCardView(value: currentTime)
                 .padding()
                 .onAppear {
                     Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
@@ -24,7 +24,7 @@ struct ContentView: View {
             FlippableBoardView(letters: currentTime)
                 .frame(width: 300)
 
-            CardView(value: randomLetter, textColor: .red)
+            FlippableCardView(value: randomLetter, textColor: .red, roundCorners: [.topLeading, .bottomLeading, .topTrailing, .bottomTrailing], roundRadius: 10)
                 .frame(width: 100)
                 .onTapGesture {
                     randomLetter = String(letters.randomElement() ?? "A")
