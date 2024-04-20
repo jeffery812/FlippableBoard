@@ -4,14 +4,24 @@
 
 import SwiftUI
 
-struct Configuration {
-    static var textColor: Color {
-        Color("textColor", bundle: .module)
+public class Configuration {
+    private(set) var textColor: Color
+    private(set) var backgroundColor: Color
+    private(set) var animationDuration: CGFloat
+
+    public init() {
+        textColor = Color("textColor", bundle: .module)
+        backgroundColor = Color("backgroundColor", bundle: .module)
+        animationDuration = 0.4
+    }
+
+    public func withTextColor(_ color: Color) -> Configuration {
+        textColor = color
+        return self
     }
     
-    static var backgroundColor: Color {
-        Color("backgroundColor", bundle: .module)
+    public func withAnimation(duration: CGFloat) -> Configuration {
+        animationDuration = duration
+        return self
     }
-    
-    static var animationDuration: CGFloat { 0.4 }
 }

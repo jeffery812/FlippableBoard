@@ -6,10 +6,12 @@ import SwiftUI
 public struct FlippableBoardView: View {
     private let letters: [String]
     private let roundRadius: CGFloat
+    private let configuration: Configuration
 
-    public init(letters: String, roundRadius: CGFloat = 0) {
+    public init(letters: String, roundRadius: CGFloat = 0, configuration: Configuration) {
         self.letters = letters.map { String($0) }
         self.roundRadius = roundRadius
+        self.configuration = configuration
     }
 
     public var body: some View {
@@ -19,7 +21,7 @@ public struct FlippableBoardView: View {
                     Spacer()
                         .frame(width: 2)
                 } else {
-                    FlippableCardView(value: letters[index], roundCorners: getRoundedCorners(index: index), roundRadius: 10)
+                    FlippableCardView(value: letters[index], configuration: configuration, roundCorners: getRoundedCorners(index: index), roundRadius: 10)
                 }
             }
         }

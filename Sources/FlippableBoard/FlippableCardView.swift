@@ -5,24 +5,21 @@
 import SwiftUI
 
 public struct FlippableCardView: View {
-    @State var start = false
-    @State var end = false
-    
-    private let animationDuration: CGFloat
     private let value: String
-    private let backgroundColor: Color
-    private let textColor: Color
     private let roundRadius: CGFloat
     private let roundCorners: [Corner]
+    private let rotationAngle: CGFloat = 90.01
+    private let configuration: Configuration
+    
+    @State var flipTop = false
+    @State var flipBottom = false
     
     @State private var currentText: String = ""
     @State private var newText: String = ""
 
-    public init(value: String,textColor: Color? = nil, backgroundColor: Color? = nil, animationDuration: CGFloat? = nil, roundCorners: [Corner] = [], roundRadius: CGFloat = 0) {
+    public init(value: String, configuration: Configuration, roundCorners: [Corner] = [], roundRadius: CGFloat = 0) {
         self.value = value
-        self.textColor = textColor ?? Configuration.textColor
-        self.animationDuration = animationDuration ?? Configuration.animationDuration
-        self.backgroundColor = backgroundColor ?? Configuration.backgroundColor
+        self.configuration = configuration
         self.roundCorners = roundCorners
         self.roundRadius = roundRadius
     }
@@ -32,18 +29,17 @@ public struct FlippableCardView: View {
             topHalf
             bottomHalf
         }
+        .overlay {
+            Color.white
+                .frame(height: 2)
+        }
         .onAppear {
             currentText = value
             newText = value
         }
-        .onChange(of: value) { newValue in
-            currentText = newText
+        .onChange(of: value) { _, newValue in
             newText = newValue
             flipCard()
-        }
-        .overlay {
-            Color.white
-                .frame(height: 2)
         }
     }
     
@@ -54,9 +50,11 @@ public struct FlippableCardView: View {
             }
             CardHalfView(type: .top) {
                 makeContent(value: currentText)
+//                    .opacity(start ? 1 : 0)
+//                    .transition(.identity) 
             }
             .rotation3DEffect(
-                Angle(degrees: start ? 90.01 : 0),
+                Angle(degrees: flipTop ? rotationAngle : 0.0),
                 axis: (x: -1.0, y: 0.0, z: 0.0),
                 anchor: .bottom,
                 perspective: 0.5
@@ -71,9 +69,11 @@ public struct FlippableCardView: View {
             }
             CardHalfView(type: .bottom) {
                 makeContent(value: newText)
+//                    .opacity(end ? 1 : 0)
+//                    .transition(.identity) 
             }
             .rotation3DEffect(
-                Angle(degrees: end ? 0 : 90.01),
+                Angle(degrees: flipBottom ? 0 : rotationAngle),
                 axis: (x: 1.0, y: 0.0, z: 0.0),
                 anchor: .top,
                 perspective: 0.5
@@ -86,8 +86,8 @@ public struct FlippableCardView: View {
             .lineLimit(1)
             .minimumScaleFactor(0.5)
             .frame(maxWidth: .infinity, alignment: .center)
-            .font(.system(size: 100).monospacedDigit())
-            .foregroundStyle(textColor)
+            .font(.system(size: 96).weight(.heavy).monospacedDigit())
+            .foregroundStyle(configuration.textColor)
             .background {
                 UnevenRoundedRectangle(
                     cornerRadii: RectangleCornerRadii(
@@ -96,35 +96,32 @@ public struct FlippableCardView: View {
                         bottomTrailing: roundCorners.contains(.bottomTrailing) ? roundRadius : 0,
                         topTrailing: roundCorners.contains(.topTrailing) ? roundRadius : 0),
                     style: .continuous)
-                    .fill(backgroundColor)
+                .fill(configuration.backgroundColor)
             }
     }
     
     private func flipCard() {
         // Top half
-        let now: DispatchTime = .now()
-        withAnimation(.linear(duration: animationDuration / 2)) {
-            start.toggle()
-        }
-        DispatchQueue.main.asyncAfter(deadline: now + animationDuration) {
-            start = false
-            currentText = newText
-        }
-        
-        // Bottom half
-        DispatchQueue.main.asyncAfter(deadline: now + animationDuration / 2) {
-            withAnimation(.linear(duration: animationDuration / 2)) {
-                end = true
-            }
-        }
+        withAnimation(.linear(duration: configuration.animationDuration / 2)) {
+            // Flip top
+            flipTop = true
+        } completion: {
+            withAnimation(.linear(duration: configuration.animationDuration / 2)) {
+                // Flip bottom
+                flipBottom = true
+            } completion: {
+                // All animation complete
+                currentText = newText
 
-        DispatchQueue.main.asyncAfter(deadline: now + animationDuration) {
-            end = false
+                flipBottom = false
+                flipTop = false
+            }
         }
     }
 }
 
 #Preview {
-    FlippableCardView(value: "10:55:28")
+    let configuration = Configuration()
+    return FlippableCardView(value: "10:55:28", configuration: configuration)
 }
 
