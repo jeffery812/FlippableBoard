@@ -20,6 +20,10 @@ public class Configuration {
         return self
     }
     
+    public func withBackgroundColor(_ color: Color) -> Configuration {
+        backgroundColor = color
+        return self
+    }
     public func withAnimation(duration: CGFloat) -> Configuration {
         animationDuration = duration
         return self

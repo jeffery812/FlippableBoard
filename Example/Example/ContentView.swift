@@ -8,8 +8,9 @@ import FlippableBoard
 struct ContentView: View {
     @State private var currentTime = Date.now.formattedString(format: "HH mm ss")
     @State private var randomLetter = "A"
+    @State private var duration: CGFloat = 0.6
     private let letters: String = "ABCDEFGHIGKLMNOPQRSTUVWXYZ1234567890"
-    private let configuration = Configuration()
+    private let configuration = Configuration().withAnimation(duration: 0.6)
 
     var body: some View {
         VStack {
@@ -21,19 +22,26 @@ struct ContentView: View {
                         //randomLetter = String(letters.randomElement() ?? "A")
                     }
                 }
+                .frame(width: 300, height: 100)
             FlippableBoardView(letters: currentTime, configuration: configuration)
-                .frame(width: 300)
+                .frame(width: 300, height: 80)
 
             FlippableCardView(
                 value: randomLetter,
-                configuration: Configuration().withTextColor(.red),
+                configuration: Configuration().withTextColor(.red).withAnimation(duration: duration),
                 roundCorners: [.topLeading, .bottomLeading, .topTrailing, .bottomTrailing],
                 roundRadius: 10
             )
-                .frame(width: 100)
-                .onTapGesture {
-                    randomLetter = String(letters.randomElement() ?? "A")
-                }
+            .frame(width: 100, height: 80)
+            .onTapGesture {
+                randomLetter = String(letters.randomElement() ?? "A")
+            }
+            HStack {
+                Text("0.0")
+                Slider(value: $duration, in: 0.1...5, step: 0.1)
+                Text("5.0")
+            }
+                .padding()
         }
     }
 }
@@ -48,8 +56,4 @@ struct RoundedRect: View {
             .frame(width: width, height: height)
             .foregroundStyle(Color.gray)
     }
-}
-
-#Preview {
-    ContentView()
 }
