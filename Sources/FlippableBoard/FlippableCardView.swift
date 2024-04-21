@@ -37,7 +37,7 @@ public struct FlippableCardView: View {
                 .shadow(color: .gray, radius: 2, x: 0, y: 0)
         }
         .overlay {
-            Color.white
+            configuration.centerLineColor
                 .frame(height: 2)
         }
         .onAppear {

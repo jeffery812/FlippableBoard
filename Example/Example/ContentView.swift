@@ -28,7 +28,7 @@ struct ContentView: View {
 
             FlippableCardView(
                 value: randomLetter,
-                configuration: Configuration().withTextColor(.red).withAnimation(duration: duration),
+                configuration: Configuration().withTextColor(.red).withCenterLineColor(.green).withAnimation(duration: duration),
                 roundCorners: [.topLeading, .bottomLeading, .topTrailing, .bottomTrailing],
                 roundRadius: 10
             )
