@@ -4,12 +4,12 @@
 
 import SwiftUI
 
-public struct FlippableCardView: View {
+public struct FlippableCardView<Content>: View where Content: View{
     private let value: String
-    private let roundRadius: CGFloat
     private let roundCorners: [Corner]
     private let rotationAngle: CGFloat
     private let configuration: Configuration
+    private let centerLine: Content
     
     @State var flipTop = false
     @State var flipBottom = false
@@ -21,80 +21,78 @@ public struct FlippableCardView: View {
     @State private var isFlipped = false
     @State private var transitionText = ""
 
-    public init(value: String, configuration: Configuration, roundCorners: [Corner] = [], roundRadius: CGFloat = 0) {
+    public init(value: String, configuration: Configuration, roundCorners: [Corner] = [], centerLine: () -> Content = { EmptyView() }) {
         self.value = value
         self.configuration = configuration
         self.roundCorners = roundCorners
-        self.roundRadius = roundRadius
         self.rotationAngle = Constants.rightAngle
+        self.centerLine = centerLine()
     }
 
     public var body: some View {
         ZStack {
             topCard
-                .shadow(color: .gray, radius: 2, x: 0, y: 0)
             bottomCard
-                .shadow(color: .gray, radius: 2, x: 0, y: 0)
         }
         .overlay {
-            configuration.centerLineColor
-                .frame(height: 2)
+            centerLine
         }
+//        .shadow(color: .gray, radius: s, x: 0, y: 0)
         .onAppear {
             currentText = value
             transitionText = currentText
 
             newText = value
         }
-        .onChange(of: value) { _, newValue in
+        .onChange(of: value, perform: { newValue in
             newText = newValue
             flipCard()
-        }
+        })
     }
     
     private var topCard: some View {
-        ZStack {
-            GeometryReader { proxy in
-                CardView(value: newText, configuration: configuration, roundCorners: roundCorners, roundRadius: roundRadius)
-                    .mask {
-                        Rectangle()
-                            .frame(height: proxy.size.height)
-                            .offset(y: -proxy.size.height / 2)
-                    }
-                CardView(value: currentText, configuration: configuration, roundCorners: roundCorners, roundRadius: roundRadius)
-                    .mask {
-                        Rectangle()
-                            .frame(height: proxy.size.height)
-                            .offset(y: -proxy.size.height / 2)
-                    }
-                    .rotation3DEffect(
-                        Angle(degrees: frontDegree),
-                        axis: (x: -0.5, y: 0.0, z: 0.0)
-                    )
-            }
+        GeometryReader { proxy in
+            CardView(value: newText, configuration: configuration, roundCorners: roundCorners)
+                .mask {
+                    Rectangle()
+                        .frame(height: proxy.size.height)
+                        .offset(y: -proxy.size.height / 2)
+                }
+                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+            CardView(value: currentText, configuration: configuration, roundCorners: roundCorners)
+                .mask {
+                    Rectangle()
+                        .frame(height: proxy.size.height)
+                        .offset(y: -proxy.size.height / 2)
+                }
+                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                .rotation3DEffect(
+                    Angle(degrees: frontDegree),
+                    axis: (x: -0.5, y: 0.0, z: 0.0)
+                )
         }
     }
     
     private var bottomCard: some View {
-        ZStack {
-            GeometryReader { proxy in
-                CardView(value: transitionText, configuration: configuration, roundCorners: roundCorners, roundRadius: roundRadius)
-                    .mask {
-                        Rectangle()
-                            .frame(height: proxy.size.height)
-                            .offset(y: proxy.size.height / 2)
-                    }
-                CardView(value: newText, configuration: configuration, roundCorners: roundCorners, roundRadius: roundRadius)
-                    .mask {
-                        Rectangle()
-                            .frame(height: proxy.size.height)
-                            .offset(y: proxy.size.height / 2)
-                    }
-                    .rotation3DEffect(
-                        Angle(degrees: backDegree),
-                        axis: (x: -0.5, y: 0.0, z: 0.0)
-                    )
-            }
+        GeometryReader { proxy in
+            CardView(value: transitionText, configuration: configuration, roundCorners: roundCorners)
+                .mask {
+                    Rectangle()
+                        .frame(height: proxy.size.height)
+                        .offset(y: proxy.size.height / 2)
+                }
+                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+            CardView(value: newText, configuration: configuration, roundCorners: roundCorners)
+                .mask {
+                    Rectangle()
+                        .frame(height: proxy.size.height)
+                        .offset(y: proxy.size.height / 2)
+                }
+                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                .rotation3DEffect(
+                    Angle(degrees: backDegree),
+                    axis: (x: -0.5, y: 0.0, z: 0.0)
+                )
         }
     }
     
@@ -106,25 +104,20 @@ public struct FlippableCardView: View {
             backDegree = -Constants.rightAngle
         }
         
-        withAnimation(.linear(duration: duration)) {
-            frontDegree = Constants.rightAngle
-        } completion: {
-            frontDegree = 0
-            currentText = newText
-            withAnimation(.bouncy(duration: duration, extraBounce: 0.2)) {
-                backDegree = 0
+        if #available(iOS 17.0, *) {
+            withAnimation(.linear(duration: duration)) {
+                frontDegree = Constants.rightAngle
             } completion: {
-                transitionText = newText
+                frontDegree = 0
+                currentText = newText
+                withAnimation(.bouncy(duration: duration, extraBounce: 0.2)) {
+                    backDegree = 0
+                } completion: {
+                    transitionText = newText
+                }
             }
-        }
-    }
-    private func resetFlip() {
-        // Directly apply animation nil to this specific state change
-        DispatchQueue.main.async {
-            withAnimation(nil) {
-                flipBottom = false
-                flipTop = false
-            }
+        } else {
+            #warning("16.0 solutions")
         }
     }
 }

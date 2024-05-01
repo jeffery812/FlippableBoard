@@ -10,7 +10,7 @@ struct ContentView: View {
     @State private var randomLetter = "A"
     @State private var duration: CGFloat = 0.6
     private let letters: String = "ABCDEFGHIGKLMNOPQRSTUVWXYZ1234567890"
-    private let configuration = Configuration().withAnimation(duration: 0.6)
+    private let configuration = Configuration().withAnimation(duration: 0.6).withFontSize(32)
 
     var body: some View {
         VStack {
@@ -22,15 +22,18 @@ struct ContentView: View {
                         //randomLetter = String(letters.randomElement() ?? "A")
                     }
                 }
-                .frame(width: 300, height: 100)
+                .frame(width: 200, height: 80)
             FlippableBoardView(letters: currentTime, configuration: configuration)
                 .frame(width: 300, height: 80)
 
             FlippableCardView(
                 value: randomLetter,
-                configuration: Configuration().withTextColor(.red).withCenterLineColor(.green).withAnimation(duration: duration),
-                roundCorners: [.topLeading, .bottomLeading, .topTrailing, .bottomTrailing],
-                roundRadius: 10
+                configuration: Configuration()
+                    .withTextColor(.red)
+                    .withCenterLineColor(.green)
+                    .withFontSize(96)
+                    .withAnimation(duration: duration),
+                roundCorners: [.topLeading, .bottomLeading, .topTrailing, .bottomTrailing]
             )
             .frame(width: 100, height: 80)
             .onTapGesture {

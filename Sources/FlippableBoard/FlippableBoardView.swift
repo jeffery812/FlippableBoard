@@ -3,29 +3,25 @@
 
 import SwiftUI
 
-public struct FlippableBoardView: View {
+public struct FlippableBoardView<Content>: View where Content: View {
     private let letters: [String]
-    private let roundRadius: CGFloat
     private let configuration: Configuration
+    private let centerLine: Content
 
-    public init(letters: String, roundRadius: CGFloat = 0, configuration: Configuration) {
+    public init(letters: String, configuration: Configuration, centerLine: () -> Content = { EmptyView() }) {
         self.letters = letters.map { String($0) }
-        self.roundRadius = roundRadius
         self.configuration = configuration
+        self.centerLine = centerLine()
     }
 
     public var body: some View {
         HStack(spacing: 2) {
             ForEach(0..<letters.count, id: \.self) { index in
-                if letters[index].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Spacer()
-                        .frame(width: 2)
-                } else {
-                    FlippableCardView(value: letters[index], configuration: configuration, roundCorners: getRoundedCorners(index: index), roundRadius: 10)
+                FlippableCardView(value: letters[index], configuration: configuration, roundCorners: getRoundedCorners(index: index)) {
+                    centerLine
                 }
             }
         }
-        .frame(height: 60)
     }
 
     private func getRoundedCorners(index: Int) -> [Corner] {
