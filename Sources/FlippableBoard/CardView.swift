@@ -15,7 +15,8 @@ struct CardView: View {
             .minimumScaleFactor(0.1)
             .font(.system(size: configuration.fontSize).weight(.heavy).monospacedDigit())
             .foregroundStyle(configuration.textColor)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: configuration.cardAlignment)
+            .padding(configuration.padding)
             .background {
                 GeometryReader { proxy in
                     UnevenRoundedRectangle(
@@ -28,7 +29,6 @@ struct CardView: View {
                     .fill(LinearGradient(gradient: Gradient(colors: [configuration.backgroundColor, configuration.backgroundColor.opacity(0.8)]), startPoint: .bottom, endPoint: .top))
                 }
             }
-        
     }
 }
 
